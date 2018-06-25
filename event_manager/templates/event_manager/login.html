@@ -1,0 +1,46 @@
+
+<!doctype html>
+<html lang="en">
+  <head>
+    <title>Event Manager</title>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="description" content="Event Manager">
+    <meta name="author" content="">
+
+    {% load staticfiles %}
+    <!-- Bootstrap core CSS -->
+    <link rel="stylesheet" href="{% static "css/bootstrap.min.css" %}">
+    <script src="{% static "js/bootstrap.min.js" %}"></script>
+
+
+    <!-- Custom styles for this template -->
+
+    <link href="{% static "css/login.css" %}" rel="stylesheet">
+  </head>
+
+  <body>
+        {% include 'event_manager/messages.html'%}
+
+  <div class="login-form">
+    <form action="/event_manager/login/" method="post">
+        {% csrf_token %}
+        <h2 class="text-center">Log in</h2>
+        <div class="form-group">
+            <input type="text" class="form-control" placeholder="Username" name="username" required="required">
+        </div>
+        <div class="form-group">
+            <input type="password" class="form-control" placeholder="Password" name="password" required="required">
+        </div>
+        <div class="form-group">
+            <button type="submit" class="btn btn-primary btn-block">Log in</button>
+        </div>
+        <div class="clearfix">
+            <label class="pull-left checkbox-inline"><input type="checkbox"> Remember me</label>
+            <a href="#" class="pull-right">Forgot Password?</a>
+        </div>
+    </form>
+  </div>
+
+</body>
+</html>

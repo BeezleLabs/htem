@@ -1,0 +1,106 @@
+{% extends 'event_manager/base.html' %}
+{% block content %}
+
+<div id="page-wrapper">
+
+    <div class="container-fluid">
+
+        <!-- Page Heading -->
+        <div class="row">
+            <div class="col-lg-12">
+                <h1 class="page-header">
+                    HackerTracker Event {% if e %} - {{ e.title }} {% endif %}
+                </h1>
+            </div>
+        </div>
+         <!-- /.row -->
+        <div class="row">
+            <div class="col-lg-12">
+                {% include 'event_manager/messages.html'%}
+            </div>
+        </div>
+        <!-- /.row -->
+        
+        <div class="row">
+            <div class="col-lg-1">&nbsp</div>
+            <div class="col-lg-8">
+                <form method="post" class="form-vertical">
+                    {% csrf_token %}
+                    <div class="form-group">
+                        <label for="who">Title</label>
+                        <input type="text" class="form-control" name="title" id="title" value="{{e.title}}" placeholder="Name">
+                    </div>
+                    <div class="form-group">
+                        <label for="description">Description</label>
+                        <textarea rows="10" class="form-control" name="description" id="description" placeholder="Description">{{e.description}}</textarea>
+                    </div>
+                    <div class="form-group">
+                        <label for="speakers">Speaker(s)</label>
+                        <select class="form-control" name="speakers" id="speakers" multiple>
+                            {% for sp in sp_list %}
+                            <option value="{{sp.id}}" {% if sp in e.speakers.all %} selected{% endif %}>{{sp.who}}</option>
+                            {% endfor %}
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label for="location">Location</label>
+                        <select class="form-control" name="location" id="location">
+                            <option {% if not e.location %} selected{% endif %}>Select Location</option>
+                            {% for loc in loc_list %}
+                            <option value="{{loc.id}}" {% if loc == e.location %} selected{% endif %}>{{loc}}</option>
+                            {% endfor %}
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label for="event_type">Event Type</label>
+                        <select class="form-control" name="event_type" id="event_type">
+                            <option {% if not e.event_type.event_type %} selected{% endif %}>Select Event Type</option>
+                            {% for et in et_list %}
+                            <option value="{{et.id}}" {% if et == e.event_type %} selected{% endif %}>{{et}}</option>
+                            {% endfor %}
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label for="start">Start Date (Format: 2018-01-01T12:00:00-07:00)</label>
+                        <input type="text" class="form-control" name="start_date" id="start" value="{{e.start_date|date:"c"}}" placeholder="Start Date">
+                    </div>
+                    <div class="form-group">
+                        <label for="end">End Date (Format: 2018-01-01T13:00:00-07:00)</label>
+                        <input type="text" class="form-control" name="end_date" id="end" value="{{e.end_date|date:"c"}}" placeholder="End Date">
+                    </div>
+                    <div class="form-group">
+                        <label for="link">Link</label>
+                        <input type="text" class="form-control" name="link" id="link" value="{{e.link}}" placeholder="Link">
+                    </div>
+                    <div class="form-group">
+                        <label for="includes">Includes</label>
+                        <input type="text" class="form-control" name="includes" id="includes" value="{{e.includes}}" placeholder="Exploit,Tool,Demo">
+                    </div>
+                    <div class="form-group">
+                        <label for="dctv_channel">DCTV Channel</label>
+                        <input type="text" class="form-control" name="dctv_channel" id="dctv_channel" value="{{e.dctv_channel}}" placeholder="Channel Number">
+                    </div>
+                    {% if user.is_superuser %}
+                    <div class="form-group">
+                        <label for="conName">Conference</label>
+                        <select class="form-control" name="code" id="conName">
+                            <option {% if not e.conference %} selected {% endif %}>Select Conference</option>
+                            {% for c in cons %}
+                            <option value="{{c.code}}" {% if c == e.conference %} selected{% endif %}>{{c.name}}</option>
+                            {% endfor %}
+                        </select>
+                    </div>
+                    {% endif %}
+                    <button type="submit" class="btn btn-primary">Submit</button>
+            </div>
+            <!-- ./col-lg-6 -->
+        </div>
+        <!-- /.row -->
+
+    </div>
+    <!-- /.container-fluid -->
+
+</div>
+<!-- /#page-wrapper -->
+
+{% endblock %}

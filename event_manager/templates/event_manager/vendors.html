@@ -1,0 +1,64 @@
+{% extends 'event_manager/base.html' %}
+{% block content %}
+
+<div id="page-wrapper">
+
+    <div class="container-fluid">
+
+        <!-- Page Heading -->
+        <div class="row">
+            <div class="col-lg-12">
+                <h1 class="page-header">
+                    HackerTracker Vendors
+                </h1>
+            </div>
+        </div>
+        <!-- /.row -->
+
+        <div class="row">
+            <div class="col-lg-2">
+                <a href="/event_manager/vendor/"><button class="btn btn-primary">Add Vendor</button></a>
+            </div>
+            <div class="col-lg-10">
+                {% include 'event_manager/messages.html'%}
+            </div>
+        </div>
+        <!-- /.row -->
+
+        <div class="row">
+            <div class="col-lg-12">
+                <table class="table table-hover table-striped">
+                    <thead>
+                        <tr>
+                            <th>Conference</th>
+                            <th>Vendor</th>
+                            <th>Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% if vendors %}
+                            {% for v in vendors %}
+                            <tr>
+                                <td>{{ v.conference.name }}</td>
+                                <td>{{ v.title }}</td>
+                                <td>
+                                    <a href="/event_manager/vendor/{{v.id}}/"><i class="fa fa-fw fa-edit"></i></a>
+                                    <a href="/event_manager/vendor/d/{{v.id}}" onclick="return confirm('Delete {{v.title}}?');"><i class="fa fa-fw fa-trash"></i></a>
+
+                                </td>
+                            </tr>
+                            {% endfor %}
+                        {% endif %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+        <!-- /.row -->
+
+    </div>
+    <!-- /.container-fluid -->
+
+</div>
+<!-- /#page-wrapper -->
+
+{% endblock %}
