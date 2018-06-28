@@ -106,6 +106,7 @@ def conference(request,code=None):
 			con.code = request.POST.get('code',False)
 			con.description = request.POST.get('description',False)
 			con.link = request.POST.get('link',False)
+			con.timezone = request.POST.get('timezone',False)
 			con.start_date = request.POST.get('start_date',False)
 			con.end_date = request.POST.get('end_date',False)
 			con.save()

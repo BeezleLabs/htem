@@ -38,12 +38,16 @@
                         <input type="text" class="form-control" name="name" id="conName" value="{{conference.name}}" placeholder="Conference Name">
                     </div>
                     <div class="form-group">
-                        <label for="conDesc">Conference Description</label>
-                        <input type="text" class="form-control" name="description" id="conDesc" value="{{conference.description}}" placeholder="Conference Name">
+                        <label for="conDesc">Description</label>
+                        <textarea rows="10" class="form-control" name="description" id="conDesc" placeholder="Description">{{conference.description}}</textarea>
                     </div>
                     <div class="form-group">
-                        <label for="conLink">Conference Link</label>
-                        <input type="text" class="form-control" name="link" id="conLink" value="{{conference.link}}" placeholder="Conference Link">
+                        <label for="conLink">Link</label>
+                        <input type="text" class="form-control" name="link" id="conLink" value="{{conference.link}}" placeholder="Link">
+                    </div>
+                    <div class="form-group">
+                        <label for="conTz">Timezone (Format: -06:00)</label>
+                        <input type="text" class="form-control" name="link" id="conTz" value="{{conference.timezone}}" placeholder="-06:00">
                     </div>
                     <div class="form-group">
                         <label for="conStart">Start Date (Format: 2018-01-01)</label>

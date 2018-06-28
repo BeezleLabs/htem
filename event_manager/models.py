@@ -6,27 +6,36 @@ class Conference(models.Model):
 	name = models.CharField(max_length=2048)
 	description = models.TextField(blank=True)
 	code = models.CharField(max_length=16)
+	timezone = models.CharField(max_length=10,default='-06:00')
 	link = models.URLField(blank=True)
 	start_date = models.DateField(default='2018-01-01')
 	end_date = models.DateField(default='2018-01-01')
+	created_date = models.DateTimeField(auto_now_add=True)
+	modified_date = models.DateTimeField(auto_now=True)
 	def __str__(self):
 		return self.name
 	
 class EventType(models.Model):
 	event_type = models.CharField(max_length=256)
 	conference = models.ForeignKey(Conference,on_delete=models.CASCADE, null=True)
+	created_date = models.DateTimeField(auto_now_add=True)
+	modified_date = models.DateTimeField(auto_now=True)
 	def __str__(self):
 		return self.event_type + ' (' + self.conference.name + ')'
 
 class Location(models.Model):
 	location = models.CharField(max_length=1024)
 	conference = models.ForeignKey(Conference,on_delete=models.CASCADE, null=True)
+	created_date = models.DateTimeField(auto_now_add=True)
+	modified_date = models.DateTimeField(auto_now=True)
 	def __str__(self):
 		return self.location + ' (' + self.conference.name + ')'
 
 class Village(models.Model):
 	village = models.CharField(max_length=1024)
 	conference = models.ForeignKey(Conference,on_delete=models.CASCADE, null=True)
+	created_date = models.DateTimeField(auto_now_add=True)
+	modified_date = models.DateTimeField(auto_now=True)
 	def __str__(self):
 		return self.village + ' (' + self.conference.name + ')'
 
@@ -36,6 +45,8 @@ class Vendor(models.Model):
 	link = models.URLField(max_length=2048,blank=True)
 	partner = models.BooleanField(default=False)
 	conference = models.ForeignKey(Conference,on_delete=models.CASCADE, null=True)
+	created_date = models.DateTimeField(auto_now_add=True)
+	modified_date = models.DateTimeField(auto_now=True)
 	def __str__(self):
 		return self.title + ' (' + self.conference.name + ')'
 
@@ -47,6 +58,8 @@ class Speaker(models.Model):
 	link = models.URLField(blank=True)
 	bio = models.TextField(blank=True)
 	conference = models.ForeignKey(Conference,on_delete=models.CASCADE, null=True)
+	created_date = models.DateTimeField(auto_now_add=True)
+	modified_date = models.DateTimeField(auto_now=True)
 	def __str__(self):
 		return self.who + ' (' + self.conference.name + ')'
 
@@ -67,6 +80,8 @@ class Event(models.Model):
 	dctv_channel = models.CharField(max_length=32,blank=True)
 	start_date = models.DateTimeField(default='2018-01-01T00:00:00-00:00')
 	end_date = models.DateTimeField(default='2018-01-01T01:00:00-00:00')
+	created_date = models.DateTimeField(auto_now_add=True)
+	modified_date = models.DateTimeField(auto_now=True)
 	def __str__(self):
 		return self.title + ' (' + self.conference.name + ')'
 	
