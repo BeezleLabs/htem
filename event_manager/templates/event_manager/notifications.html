@@ -9,7 +9,7 @@
         <div class="row">
             <div class="col-lg-12">
                 <h1 class="page-header">
-                    HackerTracker Locations
+                    HackerTracker Notifications
                 </h1>
             </div>
         </div>
@@ -17,7 +17,7 @@
 
         <div class="row">
             <div class="col-lg-2">
-                <a href="/event_manager/location/"><button class="btn btn-primary">Add Location</button></a>
+                <a href="/event_manager/notification/"><button class="btn btn-primary">Add Notification</button></a>
             </div>
             <div class="col-lg-10">
                 {% include 'event_manager/messages.html'%}
@@ -31,21 +31,19 @@
                     <thead>
                         <tr>
                             <th>Conference</th>
-                            <th>Location</th>
-                            <th>Hotel</th>
+                            <th>Notification</th>
                             <th>Actions</th>
                         </tr>
                     </thead>
                     <tbody>
-                        {% if locations %}
-                            {% for loc in locations %}
+                        {% if notifications %}
+                            {% for n in notifications %}
                             <tr>
-                                <td>{{ loc.conference.name }}</td>
-                                <td>{{ loc.location }}</td>
-                                <td>{{ loc.hotel }}</td>
+                                <td>{{ n.conference.name }}</td>
+                                <td>{{ n.text }}</td>
                                 <td>
-                                    <a href="/event_manager/location/{{loc.id}}/"><i class="fa fa-fw fa-edit"></i></a>
-                                    <a href="/event_manager/location/d/{{loc.id}}" onclick="return confirm('Delete {{loc.location}}?');"><i class="fa fa-fw fa-trash"></i></a>
+                                    <a href="/event_manager/notification/{{n.id}}/"><i class="fa fa-fw fa-edit"></i></a>
+                                    <a href="/event_manager/notification/d/{{n.id}}" onclick="return confirm('Delete {{n.id}}?');"><i class="fa fa-fw fa-trash"></i></a>
                                 </td>
                             </tr>
                             {% endfor %}

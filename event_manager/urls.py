@@ -16,8 +16,8 @@ urlpatterns = [
 	path('event/d/<int:e_id>/',views.event_delete,name='delete event'),
 	
 	# Event Types
-	path('event_types/',views.event_types,name='events'),
-	path('event_types/<str:code>/',views.event_types,name='events'),
+	path('event_types/',views.event_types,name='event types'),
+	path('event_types/<str:code>/',views.event_types,name='event type'),
 	path('event_type/',views.event_type,name='add event_types'),
 	path('event_type/<int:et_id>/',views.event_type,name='edit event type'),
 	path('event_type/d/<int:et_id>/',views.event_type_delete,name='delete event type'),
@@ -50,6 +50,27 @@ urlpatterns = [
 	path('village/<int:vil_id>/',views.village,name='edit village'),
 	path('village/d/<int:vil_id>/',views.village_delete,name='delete village'),
 	
+	# Articles
+	path('articles/',views.articles,name='articles'),
+	path('articles/<str:code>/',views.articles,name='articles'),
+	path('article/',views.article,name='add article'),
+	path('article/<int:a_id>/',views.article,name='edit article'),
+	path('article/d/<int:a_id>/',views.article_delete,name='delete article'),
+	
+	# FAQs
+	path('faqs/',views.faqs,name='faqs'),
+	path('faqs/<str:code>/',views.faqs,name='faqs'),
+	path('faq/',views.faq,name='add faq'),
+	path('faq/<int:f_id>/',views.faq,name='edit faq'),
+	path('faq/d/<int:f_id>/',views.faq_delete,name='delete faq'),
+
+	# Notifications
+	path('notifications/',views.notifications,name='notifications'),
+	path('notifications/<str:code>/',views.notifications,name='notifications'),
+	path('notification/',views.notification,name='add notification'),
+	path('notification/<int:n_id>/',views.notification,name='edit notification'),
+	path('notification/d/<int:n_id>/',views.notification_delete,name='delete notification'),	
+	
 	# Conferences
 	path('conferences/',views.conferences,name='conferences'),
 	path('conference/',views.conference),
@@ -61,10 +82,24 @@ urlpatterns = [
 	path('logout/', views.logout_view, name='logout'),
 
 	# JSON Endpoints
-	path('api/event/<int:event_id>/',views.event_edit,name='event edit'),
+	path('api/conferences/',views.conferences_json,name='conferences json'),
+	path('api/events/',views.events_json,name='events json'),
+	path('api/events/<str:code>/',views.events_json,name='events json'),
+	path('api/speakers/',views.speakers_json,name='speakers json'),
+	path('api/speakers/<str:code>/',views.speakers_json,name='speakers json'),
+	path('api/event_types/',views.event_types_json,name='event types json'),
+	path('api/event_types/<str:code>/',views.event_types_json,name='event types json'),
+	path('api/locations/',views.locations_json,name='locations'),
+	path('api/locations/<str:code>/',views.locations_json,name='locations'),
+	path('api/vendors/',views.vendors_json,name='vendors'),
+	path('api/vendors/<str:code>/',views.vendors_json,name='vendors'),
+	path('api/articles/',views.articles_json,name='articles'),
+	path('api/articles/<str:code>/',views.articles_json,name='articles'),
+	path('api/faqs/',views.faqs_json,name='faqs'),
+	path('api/faqs/<str:code>/',views.faqs_json,name='faqs'),
+	path('api/notifications/',views.notifications_json,name='notifications'),
+	path('api/notifications/<str:code>/',views.notifications_json,name='notifications'),
 	
-	path('api/location/',views.location_json,name='locations'),
-	path('api/vendor/',views.vendors_json,name='vendors'),
 
 	# Static files
 

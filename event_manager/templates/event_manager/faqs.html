@@ -9,7 +9,7 @@
         <div class="row">
             <div class="col-lg-12">
                 <h1 class="page-header">
-                    HackerTracker Locations
+                    HackerTracker Frequently Asked Questions (FAQ)
                 </h1>
             </div>
         </div>
@@ -17,7 +17,7 @@
 
         <div class="row">
             <div class="col-lg-2">
-                <a href="/event_manager/location/"><button class="btn btn-primary">Add Location</button></a>
+                <a href="/event_manager/faq/"><button class="btn btn-primary">Add FAQ</button></a>
             </div>
             <div class="col-lg-10">
                 {% include 'event_manager/messages.html'%}
@@ -31,21 +31,19 @@
                     <thead>
                         <tr>
                             <th>Conference</th>
-                            <th>Location</th>
-                            <th>Hotel</th>
+                            <th>Question</th>
                             <th>Actions</th>
                         </tr>
                     </thead>
                     <tbody>
-                        {% if locations %}
-                            {% for loc in locations %}
+                        {% if faqs %}
+                            {% for faq in faqs %}
                             <tr>
-                                <td>{{ loc.conference.name }}</td>
-                                <td>{{ loc.location }}</td>
-                                <td>{{ loc.hotel }}</td>
+                                <td>{{ faq.conference.name }}</td>
+                                <td>{{ faq.question }}</td>
                                 <td>
-                                    <a href="/event_manager/location/{{loc.id}}/"><i class="fa fa-fw fa-edit"></i></a>
-                                    <a href="/event_manager/location/d/{{loc.id}}" onclick="return confirm('Delete {{loc.location}}?');"><i class="fa fa-fw fa-trash"></i></a>
+                                    <a href="/event_manager/faq/{{faq.id}}/"><i class="fa fa-fw fa-edit"></i></a>
+                                    <a href="/event_manager/faq/d/{{faq.id}}" onclick="return confirm('Delete {{faq.question}}?');"><i class="fa fa-fw fa-trash"></i></a>
                                 </td>
                             </tr>
                             {% endfor %}

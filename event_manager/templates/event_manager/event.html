@@ -80,6 +80,10 @@
                         <label for="dctv_channel">DCTV Channel</label>
                         <input type="text" class="form-control" name="dctv_channel" id="dctv_channel" value="{{e.dctv_channel}}" placeholder="Channel Number">
                     </div>
+                    <div class="form-group">
+                        <label for="event_id">Event ID</label>
+                        <input type="text" class="form-control" name="event_id" id="event_id" value="{{e.event_id}}" placeholder="Event ID">
+                    </div>
                     {% if user.is_superuser %}
                     <div class="form-group">
                         <label for="conName">Conference</label>

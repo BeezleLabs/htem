@@ -6,7 +6,7 @@ class Conference(models.Model):
 	name = models.CharField(max_length=2048)
 	description = models.TextField(blank=True)
 	code = models.CharField(max_length=16)
-	timezone = models.CharField(max_length=10,default='-06:00')
+	timezone = models.CharField(max_length=32,default='America/Los_Angeles')
 	link = models.URLField(blank=True)
 	start_date = models.DateField(default='2018-01-01')
 	end_date = models.DateField(default='2018-01-01')
@@ -17,15 +17,44 @@ class Conference(models.Model):
 	
 class EventType(models.Model):
 	event_type = models.CharField(max_length=256)
+	color = models.CharField(max_length=16, null=True)
 	conference = models.ForeignKey(Conference,on_delete=models.CASCADE, null=True)
 	created_date = models.DateTimeField(auto_now_add=True)
 	modified_date = models.DateTimeField(auto_now=True)
 	def __str__(self):
 		return self.event_type + ' (' + self.conference.name + ')'
+	
+class FAQ(models.Model):
+	question = models.TextField(blank=True)
+	answer = models.TextField(blank=True)
+	conference = models.ForeignKey(Conference,on_delete=models.CASCADE, null=True)
+	created_date = models.DateTimeField(auto_now_add=True)
+	modified_date = models.DateTimeField(auto_now=True)
+	def __str__(self):
+		return self.question + ' (' + self.conference.name + ')'
+	
+class Article(models.Model):
+	name = models.TextField(blank=True)
+	text = models.TextField(blank=True)
+	conference = models.ForeignKey(Conference,on_delete=models.CASCADE, null=True)
+	created_date = models.DateTimeField(auto_now_add=True)
+	modified_date = models.DateTimeField(auto_now=True)
+	def __str__(self):
+		return self.title + ' (' + self.conference.name + ')'
+	
+class Notification(models.Model):
+	time = models.DateTimeField(default='2018-01-01T01:00:00-00:00')
+	text = models.TextField(blank=True)
+	conference = models.ForeignKey(Conference,on_delete=models.CASCADE, null=True)
+	created_date = models.DateTimeField(auto_now_add=True)
+	modified_date = models.DateTimeField(auto_now=True)
+	def __str__(self):
+		return self.title + ' (' + self.conference.name + ')'
 
 class Location(models.Model):
 	location = models.CharField(max_length=1024)
 	conference = models.ForeignKey(Conference,on_delete=models.CASCADE, null=True)
+	hotel = models.CharField(max_length=1024,blank=True)
 	created_date = models.DateTimeField(auto_now_add=True)
 	modified_date = models.DateTimeField(auto_now=True)
 	def __str__(self):
