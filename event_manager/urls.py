@@ -14,49 +14,49 @@ urlpatterns = [
 	path('event/',views.event,name='add event'),
 	path('event/<int:e_id>/',views.event,name='edit event'),
 	path('event/d/<int:e_id>/',views.event_delete,name='delete event'),
-	
+
 	# Event Types
 	path('event_types/',views.event_types,name='event types'),
 	path('event_types/<str:code>/',views.event_types,name='event type'),
 	path('event_type/',views.event_type,name='add event_types'),
 	path('event_type/<int:et_id>/',views.event_type,name='edit event type'),
 	path('event_type/d/<int:et_id>/',views.event_type_delete,name='delete event type'),
-	
+
 	# Locations
 	path('locations/',views.locations,name='locations'),
 	path('locations/<str:code>/',views.locations,name='locations'),
 	path('location/',views.location,name='add location'),
 	path('location/<int:loc_id>/',views.location,name='edit location'),
 	path('location/d/<int:loc_id>/',views.location_delete,name='delete location'),
-	
+
 	# Speakers
 	path('speakers/',views.speakers,name='speakers'),
 	path('speakers/<str:code>/',views.speakers,name='speakers'),
 	path('speaker/',views.speaker,name='add speaker'),
 	path('speaker/<int:sp_id>/',views.speaker,name='edit speaker'),
 	path('speaker/d/<int:sp_id>/',views.speaker_delete,name='delete speaker'),
-	
+
 	# Vendors
 	path('vendors/',views.vendors,name='vendors'),
 	path('vendors/<str:code>/',views.vendors,name='vendors'),
 	path('vendor/',views.vendor,name='add vendor'),
 	path('vendor/<int:v_id>/',views.vendor,name='edit vendor'),
 	path('vendor/d/<int:v_id>/',views.vendor_delete,name='delete vendor'),
-	
+
 	# Villages
 	path('villages/',views.villages,name='villages'),
 	path('villages/<str:code>/',views.villages,name='villages'),
 	path('village/',views.village,name='add village'),
 	path('village/<int:vil_id>/',views.village,name='edit village'),
 	path('village/d/<int:vil_id>/',views.village_delete,name='delete village'),
-	
+
 	# Articles
 	path('articles/',views.articles,name='articles'),
 	path('articles/<str:code>/',views.articles,name='articles'),
 	path('article/',views.article,name='add article'),
 	path('article/<int:a_id>/',views.article,name='edit article'),
 	path('article/d/<int:a_id>/',views.article_delete,name='delete article'),
-	
+
 	# FAQs
 	path('faqs/',views.faqs,name='faqs'),
 	path('faqs/<str:code>/',views.faqs,name='faqs'),
@@ -69,11 +69,13 @@ urlpatterns = [
 	path('notifications/<str:code>/',views.notifications,name='notifications'),
 	path('notification/',views.notification,name='add notification'),
 	path('notification/<int:n_id>/',views.notification,name='edit notification'),
-	path('notification/d/<int:n_id>/',views.notification_delete,name='delete notification'),	
-	
+	path('notification/d/<int:n_id>/',views.notification_delete,name='delete notification'),
+
 	# Conferences
 	path('conferences/',views.conferences,name='conferences'),
 	path('conference/',views.conference),
+	path('conference/select/',views.select_con,name='select_con'),
+	path('conference/select/<str:code>/',views.select_con,name='select_con'),
 	path('conference/<str:code>/',views.conference,name='conference'),
 	path('conference/d/<str:code>/',views.conference_delete,name='delete conference'),
 
@@ -99,7 +101,7 @@ urlpatterns = [
 	path('api/faqs/<str:code>/',views.faqs_json,name='faqs'),
 	path('api/notifications/',views.notifications_json,name='notifications'),
 	path('api/notifications/<str:code>/',views.notifications_json,name='notifications'),
-	
+
 
 	# Static files
 

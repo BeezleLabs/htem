@@ -52,8 +52,8 @@ def dashboard(request):
 
 @login_required
 def conferences(request):
-	if request.user.is_superuser: 
-		conferences = list(Conference.objects.all())
+	if request.user.is_superuser:
+		conferences = list(Conference.objects.all().order_by('-start_date') )
 		return render(
 			request,
 			'event_manager/conferences.html',
@@ -61,7 +61,7 @@ def conferences(request):
 		)
 	else:
 		return redirect('events')
-	
+
 @login_required
 def conference_delete(request,code=None):
 	if not request.user.is_superuser:
@@ -78,20 +78,41 @@ def conference_delete(request,code=None):
 	return conferences(request)
 
 @login_required
+def select_con(request,code=None):
+	if request.user.is_superuser:
+		if code != None:
+			try:
+				con = Conference.objects.get(code=code)
+				request.session["code"] = code
+				return redirect('events')
+			except Conference.DoesNotExist:
+				messages.warning(request,"Could not select conference " + code)
+				return redirect('select_con')
+		else:
+			conferences = list(Conference.objects.all().order_by('-start_date'))
+			return render(
+				request,
+				'event_manager/select_con.html',
+				{ 'conferences': conferences }
+			)
+	else:
+		return redirect('events')
+
+@login_required
 def conference(request,code=None):
-	if request.user.is_superuser: 
-		if code is not None: 
+	if request.user.is_superuser:
+		if code is not None:
 			con = Conference.objects.get(code=code)
 		else:
 			con = None
-		
+
 		if request.method == 'POST':
 			if con is None:
 				newcode = request.POST.get('code')
 				if Conference.objects.filter(code=newcode):
-					messages.warn(request,"Conference Code already exists")
+					messages.warning(request,"Conference Code already exists")
 					return render(request,'event_manager/conference.html')
-				else: 
+				else:
 					con = Conference.objects.create()
 					messages.info(request,"Conference Created")
 					grp = Group.objects.create(name=newcode)
@@ -102,7 +123,7 @@ def conference(request,code=None):
 							grp.permissions.add(p)
 			else:
 				messages.info(request, "Conference Updated")
-				
+
 			con.name = request.POST.get('name',False)
 			con.code = request.POST.get('code',False)
 			con.description = request.POST.get('description',False)
@@ -111,9 +132,9 @@ def conference(request,code=None):
 			con.start_date = request.POST.get('start_date',False)
 			con.end_date = request.POST.get('end_date',False)
 			con.save()
-			
+
 			return redirect('/event_manager/conference/' + con.code + '/')
-			
+
 		return render(
 			request,
 			'event_manager/conference.html',
@@ -125,8 +146,8 @@ def conference(request,code=None):
 @login_required
 def events(request,code=None):
 	event_list = []
-	if code is not None: 
-		con = Conference.objects.get(code=code)
+	if request.session["code"] is not None:
+		con = Conference.objects.get(code=request.session["code"])
 		event_list = list(Event.objects.filter(conference=con))
 	elif request.user.is_superuser:
 		con = None
@@ -136,7 +157,7 @@ def events(request,code=None):
 			c = Conference.objects.get(code=grp.name)
 			for e in Event.objects.filter(conference=c):
 				event_list.append(e)
-		
+
 	return render(
 		request,
 		'event_manager/events.html',
@@ -146,7 +167,7 @@ def events(request,code=None):
 @login_required
 def event_delete(request,e_id=None):
 	if not request.user.is_superuser or not request.user.is_staff:
-		messages.warn(request,"Unauthorized")
+		messages.warning(request,"Unauthorized")
 	elif e_id is not None:
 		if Event.objects.filter(id=e_id):
 			item = Event.objects.get(id=e_id)
@@ -160,7 +181,7 @@ def event_delete(request,e_id=None):
 
 @login_required
 def event(request,e_id=None):
-	if e_id is not None: 
+	if e_id is not None:
 		e = Event.objects.get(id=e_id)
 		conference = e.conference
 		et_list = list(EventType.objects.filter(conference=conference))
@@ -177,11 +198,11 @@ def event(request,e_id=None):
 			et_list = list(EventType.objects.filter(conference=conference))
 			sp_list = list(Speaker.objects.filter(conference=conference))
 			loc_list = list(Location.objects.filter(conference=conference))
-			
+
 	cons = []
 	if request.user.is_superuser:
 		cons = Conference.objects.all()
-	
+
 	if request.method == 'POST':
 		if e is None:
 			e = Event.objects.create()
@@ -195,7 +216,7 @@ def event(request,e_id=None):
 		e.start_date = request.POST.get('start_date',False)
 		e.end_date = request.POST.get('end_date',False)
 		e.dctv_channel = request.POST.get('dctv_channel',False)
-		if request.user.is_superuser: 
+		if request.user.is_superuser:
 			con = Conference.objects.get(code=request.POST.get('code',False))
 			e.conference = con
 		elif e.conference is None:
@@ -208,18 +229,18 @@ def event(request,e_id=None):
 		for r_sp in e.speakers.all():
 			if r_sp.id not in s_speakers:
 				e.speakers.remove(r_sp)
-		if s_speakers is not False: 
+		if s_speakers is not False:
 			for s_sp in s_speakers:
 				sp = Speaker.objects.get(id=s_sp)
 				e.speakers.add(sp)
-		
+
 		e.event_id = request.POST.get('event_id',False)
 		if e.event_id is '':
 			e.event_id = e.conference.code + '-' + str(e.id)
 		e.save()
-		
+
 		return redirect('/event_manager/event/' + str(e.id) + '/')
-		
+
 	return render(
 		request,
 		'event_manager/event.html',
@@ -237,8 +258,8 @@ def event(request,e_id=None):
 def event_types(request,code=None):
 	if request.user.is_superuser or request.user.is_staff:
 		et_list = []
-		if code is not None: 
-			con = Conference.objects.get(code=code)
+		if request.session["code"] is not None:
+			con = Conference.objects.get(code=request.session["code"])
 			et_list = list(EventType.objects.filter(conference=con))
 		elif request.user.is_superuser:
 			con = None
@@ -248,7 +269,7 @@ def event_types(request,code=None):
 				c = Conference.objects.get(code=grp.name)
 				for e in EventType.objects.filter(conference=c):
 					et_list.append(e)
-			
+
 		return render(
 			request,
 			'event_manager/event_types.html',
@@ -274,16 +295,16 @@ def event_type_delete(request,et_id=None):
 
 @login_required
 def event_type(request,et_id=None):
-	if et_id is not None: 
+	if et_id is not None:
 		et_type = EventType.objects.get(id=et_id)
 		conference = et_type.conference
 	else:
 		et_type = None
-		
+
 	cons = []
 	if request.user.is_superuser:
 		cons = Conference.objects.all()
-	
+
 	if request.method == 'POST':
 		if et_type is None:
 			et_type = EventType.objects.create()
@@ -292,15 +313,15 @@ def event_type(request,et_id=None):
 			messages.info(request, "Event Type Updated")
 		et_type.event_type = request.POST.get('event_type',False)
 		et_type.color = request.POST.get('color',False)
-		if request.user.is_superuser: 
+		if request.user.is_superuser:
 			con = Conference.objects.get(code=request.POST.get('code',False))
 			et_type.conference = con
 		elif et_type.conference is None:
 			et_type.conference = get_user_conference(request)
 		et_type.save()
-		
+
 		return redirect('/event_manager/event_type/' + str(et_type.id) + '/')
-		
+
 	return render(
 		request,
 		'event_manager/event_type.html',
@@ -311,8 +332,8 @@ def event_type(request,et_id=None):
 @login_required
 def locations(request,code=None):
 	loc_list = []
-	if code is not None: 
-		con = Conference.objects.get(code=code)
+	if request.session["code"] is not None:
+		con = Conference.objects.get(code=request.session["code"])
 		loc_list = list(Location.objects.filter(conference=con))
 	elif request.user.is_superuser:
 		con = None
@@ -322,7 +343,7 @@ def locations(request,code=None):
 			c = Conference.objects.get(code=grp.name)
 			for e in Location.objects.filter(conference=c):
 				loc_list.append(e)
-		
+
 	return render(
 		request,
 		'event_manager/locations.html',
@@ -346,16 +367,16 @@ def location_delete(request,loc_id=None):
 
 @login_required
 def location(request,loc_id=None):
-	if loc_id is not None: 
+	if loc_id is not None:
 		loc = Location.objects.get(id=loc_id)
 		conference = loc.conference
 	else:
 		loc = None
-		
+
 	cons = []
 	if request.user.is_superuser:
 		cons = Conference.objects.all()
-	
+
 	if request.method == 'POST':
 		if loc is None:
 			loc = Location.objects.create()
@@ -364,16 +385,16 @@ def location(request,loc_id=None):
 			messages.info(request, "Location Updated")
 		loc.location = request.POST.get('location',False)
 		loc.hotel = request.POST.get('hotel',False)
-		if request.user.is_superuser: 
+		if request.user.is_superuser:
 			con = Conference.objects.get(code=request.POST.get('code',False))
 			loc.conference = con
 		elif loc.conference is None:
 			loc.conference = get_user_conference(request)
 
 		loc.save()
-		
+
 		return redirect('/event_manager/location/' + str(loc.id) + '/')
-		
+
 	return render(
 		request,
 		'event_manager/location.html',
@@ -384,8 +405,8 @@ def location(request,loc_id=None):
 @login_required
 def speakers(request,code=None):
 	sp_list = []
-	if code is not None: 
-		con = Conference.objects.get(code=code)
+	if request.session["code"] is not None:
+		con = Conference.objects.get(code=request.session["code"])
 		sp_list = list(Speaker.objects.filter(conference=con))
 	elif request.user.is_superuser:
 		con = None
@@ -395,7 +416,7 @@ def speakers(request,code=None):
 			c = Conference.objects.get(code=grp.name)
 			for e in Speaker.objects.filter(conference=c):
 				sp_list.append(e)
-		
+
 	return render(
 		request,
 		'event_manager/speakers.html',
@@ -419,16 +440,16 @@ def speaker_delete(request,sp_id=None):
 
 @login_required
 def speaker(request,sp_id=None):
-	if sp_id is not None: 
+	if sp_id is not None:
 		sp = Speaker.objects.get(id=sp_id)
 		conference = sp.conference
 	else:
 		sp = None
-	
+
 	cons = []
 	if request.user.is_superuser:
 		cons = Conference.objects.all()
-	
+
 	if request.method == 'POST':
 		if sp is None:
 			sp = Speaker.objects.create()
@@ -440,15 +461,15 @@ def speaker(request,sp_id=None):
 		sp.twitter = request.POST.get('twitter',False)
 		sp.link = request.POST.get('link',False)
 		sp.bio = request.POST.get('bio',False)
-		if request.user.is_superuser: 
+		if request.user.is_superuser:
 			con = Conference.objects.get(code=request.POST.get('code',False))
 			sp.conference = con
 		elif sp.conference is None:
 			sp.conference = get_user_conference(request)
 		sp.save()
-		
+
 		return redirect('/event_manager/speaker/' + str(sp.id) + '/')
-		
+
 	return render(
 		request,
 		'event_manager/speaker.html',
@@ -459,8 +480,8 @@ def speaker(request,sp_id=None):
 @login_required
 def vendors(request,code=None):
 	v_list = []
-	if code is not None: 
-		con = Conference.objects.get(code=code)
+	if request.session["code"]  is not None:
+		con = Conference.objects.get(code=request.session["code"] )
 		v_list = list(Vendor.objects.filter(conference=con))
 	elif request.user.is_superuser:
 		con = None
@@ -470,7 +491,7 @@ def vendors(request,code=None):
 			c = Conference.objects.get(code=grp.name)
 			for e in Vendor.objects.filter(conference=c):
 				v_list.append(e)
-		
+
 	return render(
 		request,
 		'event_manager/vendors.html',
@@ -494,16 +515,16 @@ def vendor_delete(request,v_id=None):
 
 @login_required
 def vendor(request,v_id=None):
-	if v_id is not None: 
+	if v_id is not None:
 		ven = Vendor.objects.get(id=v_id)
 		conference = ven.conference
 	else:
 		ven = None
-		
+
 	cons = []
 	if request.user.is_superuser:
 		cons = Conference.objects.all()
-	
+
 	if request.method == 'POST':
 		if ven is None:
 			ven = Vendor.objects.create()
@@ -518,16 +539,16 @@ def vendor(request,v_id=None):
 			ven.partner = False
 		else:
 			ven.partner = True
-			
-		if request.user.is_superuser: 
+
+		if request.user.is_superuser:
 			con = Conference.objects.get(code=request.POST.get('code',False))
 			ven.conference = con
 		elif ven.conference is None:
 			ven.conference = get_user_conference(request)
 		ven.save()
-		
+
 		return redirect('/event_manager/vendor/' + str(ven.id) + '/')
-		
+
 	return render(
 		request,
 		'event_manager/vendor.html',
@@ -538,8 +559,8 @@ def vendor(request,v_id=None):
 @login_required
 def articles(request,code=None):
 	a_list = []
-	if code is not None: 
-		con = Conference.objects.get(code=code)
+	if request.session["code"] is not None:
+		con = Conference.objects.get(code=request.session["code"])
 		a_list = list(Article.objects.filter(conference=con))
 	elif request.user.is_superuser:
 		con = None
@@ -549,7 +570,7 @@ def articles(request,code=None):
 			c = Conference.objects.get(code=grp.name)
 			for e in Article.objects.filter(conference=c):
 				a_list.append(e)
-		
+
 	return render(
 		request,
 		'event_manager/articles.html',
@@ -573,16 +594,16 @@ def article_delete(request,a_id=None):
 
 @login_required
 def article(request,a_id=None):
-	if a_id is not None: 
+	if a_id is not None:
 		a = Article.objects.get(id=a_id)
 		conference = a.conference
 	else:
 		a = None
-		
+
 	cons = []
 	if request.user.is_superuser:
 		cons = Conference.objects.all()
-	
+
 	if request.method == 'POST':
 		if a is None:
 			a = Article.objects.create()
@@ -591,16 +612,16 @@ def article(request,a_id=None):
 			messages.info(request, "Article Updated")
 		a.name = request.POST.get('name',False)
 		a.text = request.POST.get('text',False)
-			
-		if request.user.is_superuser: 
+
+		if request.user.is_superuser:
 			con = Conference.objects.get(code=request.POST.get('code',False))
 			a.conference = con
 		elif a.conference is None:
 			a.conference = get_user_conference(request)
 		a.save()
-		
+
 		return redirect('/event_manager/article/' + str(a.id) + '/')
-		
+
 	return render(
 		request,
 		'event_manager/article.html',
@@ -611,8 +632,8 @@ def article(request,a_id=None):
 @login_required
 def faqs(request,code=None):
 	a_list = []
-	if code is not None: 
-		con = Conference.objects.get(code=code)
+	if request.session["code"] is not None:
+		con = Conference.objects.get(code=request.session["code"])
 		a_list = list(FAQ.objects.filter(conference=con))
 	elif request.user.is_superuser:
 		con = None
@@ -622,7 +643,7 @@ def faqs(request,code=None):
 			c = Conference.objects.get(code=grp.name)
 			for e in FAQ.objects.filter(conference=c):
 				a_list.append(e)
-		
+
 	return render(
 		request,
 		'event_manager/faqs.html',
@@ -646,16 +667,16 @@ def faq_delete(request,f_id=None):
 
 @login_required
 def faq(request,f_id=None):
-	if f_id is not None: 
+	if f_id is not None:
 		f = FAQ.objects.get(id=f_id)
 		conference = f.conference
 	else:
 		f = None
-		
+
 	cons = []
 	if request.user.is_superuser:
 		cons = Conference.objects.all()
-	
+
 	if request.method == 'POST':
 		if f is None:
 			f = FAQ.objects.create()
@@ -664,16 +685,16 @@ def faq(request,f_id=None):
 			messages.info(request, "FAQ Item Updated")
 		f.question = request.POST.get('q',False)
 		f.answer = request.POST.get('a',False)
-			
-		if request.user.is_superuser: 
+
+		if request.user.is_superuser:
 			con = Conference.objects.get(code=request.POST.get('code',False))
 			f.conference = con
 		elif f.conference is None:
 			f.conference = get_user_conference(request)
 		f.save()
-		
+
 		return redirect('/event_manager/faq/' + str(f.id) + '/')
-		
+
 	return render(
 		request,
 		'event_manager/faq.html',
@@ -684,8 +705,8 @@ def faq(request,f_id=None):
 @login_required
 def notifications(request,code=None):
 	a_list = []
-	if code is not None: 
-		con = Conference.objects.get(code=code)
+	if request.session["code"] is not None:
+		con = Conference.objects.get(code=request.session["code"])
 		a_list = list(Notification.objects.filter(conference=con))
 	elif request.user.is_superuser:
 		con = None
@@ -695,7 +716,7 @@ def notifications(request,code=None):
 			c = Conference.objects.get(code=grp.name)
 			for e in Notification.objects.filter(conference=c):
 				a_list.append(e)
-		
+
 	return render(
 		request,
 		'event_manager/notifications.html',
@@ -719,16 +740,16 @@ def notification_delete(request,n_id=None):
 
 @login_required
 def notification(request,n_id=None):
-	if n_id is not None: 
+	if n_id is not None:
 		n = Notification.objects.get(id=n_id)
 		conference = n.conference
 	else:
 		n = None
-		
+
 	cons = []
 	if request.user.is_superuser:
 		cons = Conference.objects.all()
-	
+
 	if request.method == 'POST':
 		if n is None:
 			n = Notification.objects.create()
@@ -737,16 +758,16 @@ def notification(request,n_id=None):
 			messages.info(request, "Notification Updated")
 		n.text = request.POST.get('text',False)
 		n.time = request.POST.get('time',False)
-			
-		if request.user.is_superuser: 
+
+		if request.user.is_superuser:
 			con = Conference.objects.get(code=request.POST.get('code',False))
 			n.conference = con
 		elif n.conference is None:
 			n.conference = get_user_conference(request)
 		n.save()
-		
+
 		return redirect('/event_manager/notification/' + str(n.id) + '/')
-		
+
 	return render(
 		request,
 		'event_manager/notification.html',
@@ -757,8 +778,8 @@ def notification(request,n_id=None):
 @login_required
 def villages(request,code=None):
 	vil_list = []
-	if code is not None: 
-		con = Conference.objects.get(code=code)
+	if request.session["code"] is not None:
+		con = Conference.objects.get(code=request.session["code"])
 		vil_list = list(Village.objects.filter(conference=con))
 	elif request.user.is_superuser:
 		con = None
@@ -768,7 +789,7 @@ def villages(request,code=None):
 			c = Conference.objects.get(code=grp.name)
 			for e in Village.objects.filter(conference=c):
 				vil_list.append(e)
-		
+
 	return render(
 		request,
 		'event_manager/villages.html',
@@ -789,19 +810,19 @@ def village_delete(request,vil_id=None):
 	else:
 		messages.warning(request, "No village found")
 	return villages(request)
-		
+
 @login_required
 def village(request,vil_id=None):
-	if vil_id is not None: 
+	if vil_id is not None:
 		vil = Village.objects.get(id=vil_id)
 		conference = vil.conference
 	else:
 		vil = None
-		
+
 	cons = []
 	if request.user.is_superuser:
 		cons = Conference.objects.all()
-	
+
 	if request.method == 'POST':
 		if vil is None:
 			vil = Village.objects.create()
@@ -820,15 +841,15 @@ def village(request,vil_id=None):
 		else:
 			messages.info(request, "Village Updated")
 		vil.village = request.POST.get('village',False)
-		if request.user.is_superuser: 
+		if request.user.is_superuser:
 			con = Conference.objects.get(code=request.POST.get('code',False))
 			vil.conference = con
 		elif vil.conference is None:
 			vil.conference = get_user_conference(request)
 		vil.save()
-		
+
 		return redirect('/event_manager/village/' + str(vil.id) + '/')
-		
+
 	return render(
 		request,
 		'event_manager/village.html',
@@ -847,7 +868,10 @@ def login(request):
                 if user.is_active:
                     auth_login(request, user)
                     # Redirect to a success page.
-                    return redirect('events')
+                    if user.is_superuser:
+                        return redirect('select_con')
+                    else:
+                        return redirect('events')
         #else:
             #messages.info(request,"User does not exist")
         messages.info(request, "Login Failed")
@@ -865,7 +889,7 @@ def events_json(request,code=None):
 	all_events = None
 	events_out = {}
 	events_out['schedule'] = []
-	if code is not None: 
+	if code is not None:
 		con = Conference.objects.get(code=code)
 		all_events = Event.objects.filter(conference=con)
 	else:
@@ -890,9 +914,9 @@ def events_json(request,code=None):
 		e_dict['end_date'] = datetime.datetime.strftime(e.end_date,'%Y-%m-%dT%H:%M%z')
 		e_dict['updated_at'] = datetime.datetime.strftime(e.modified_date,'%Y-%m-%dT%H:%M%z')
 		if e.modified_date > update_date: update_date = e.modified_date
-		
+
 		events_out['schedule'].append(e_dict)
-	
+
 	events_out['updated_at'] = datetime.datetime.strftime(update_date,'%Y-%m-%dT%H:%M%z')
 	events_json = json.dumps(events_out,indent=2)
 	return HttpResponse(events_json,content_type='application/json')
@@ -901,7 +925,7 @@ def speakers_json(request,code=None):
 	all_speakers = None
 	speakers_out = {}
 	speakers_out['speakers'] = []
-	if code is not None: 
+	if code is not None:
 		con = Conference.objects.get(code=code)
 		all_speakers = Speaker.objects.filter(conference=con)
 	else:
@@ -919,9 +943,9 @@ def speakers_json(request,code=None):
 			'updated_at': datetime.datetime.strftime(s.modified_date,'%Y-%m-%dT%H:%M%z')
 		}
 		if s.modified_date > update_date: update_date = s.modified_date
-		
+
 		speakers_out['speakers'].append(s_dict)
-	
+
 	speakers_out['updated_at'] = datetime.datetime.strftime(update_date,'%Y-%m-%dT%H:%M%z')
 	json_out = json.dumps(speakers_out,indent=2)
 	return HttpResponse(json_out,content_type='application/json')
@@ -930,7 +954,7 @@ def event_types_json(request,code=None):
 	all_items = None
 	out = {}
 	out['event_types'] = []
-	if code is not None: 
+	if code is not None:
 		con = Conference.objects.get(code=code)
 		all_items = EventType.objects.filter(conference=con)
 	else:
@@ -945,9 +969,9 @@ def event_types_json(request,code=None):
 			'updated_at': datetime.datetime.strftime(i.modified_date,'%Y-%m-%dT%H:%M%z')
 		}
 		if i.modified_date > update_date: update_date = i.modified_date
-		
+
 		out['event_types'].append(i_dict)
-	
+
 	out['updated_at'] = datetime.datetime.strftime(update_date,'%Y-%m-%dT%H:%M%z')
 	json_out = json.dumps(out,indent=2)
 	return HttpResponse(json_out,content_type='application/json')
@@ -956,7 +980,7 @@ def locations_json(request,code=None):
 	all_items = None
 	out = {}
 	out['locations'] = []
-	if code is not None: 
+	if code is not None:
 		con = Conference.objects.get(code=code)
 		all_items = Location.objects.filter(conference=con)
 	else:
@@ -971,9 +995,9 @@ def locations_json(request,code=None):
 			'updated_at': datetime.datetime.strftime(i.modified_date,'%Y-%m-%dT%H:%M%z')
 		}
 		if i.modified_date > update_date: update_date = i.modified_date
-		
+
 		out['locations'].append(i_dict)
-	
+
 	out['updated_at'] = datetime.datetime.strftime(update_date,'%Y-%m-%dT%H:%M%z')
 	json_out = json.dumps(out,indent=2)
 	return HttpResponse(json_out,content_type='application/json')
@@ -982,7 +1006,7 @@ def vendors_json(request,code=None):
 	all_items = None
 	out = {}
 	out['vendors'] = []
-	if code is not None: 
+	if code is not None:
 		con = Conference.objects.get(code=code)
 		all_items = Vendor.objects.filter(conference=con)
 	else:
@@ -999,9 +1023,9 @@ def vendors_json(request,code=None):
 			'updated_at': datetime.datetime.strftime(i.modified_date,'%Y-%m-%dT%H:%M%z')
 		}
 		if i.modified_date > update_date: update_date = i.modified_date
-		
+
 		out['vendors'].append(i_dict)
-	
+
 	out['updated_at'] = datetime.datetime.strftime(update_date,'%Y-%m-%dT%H:%M%z')
 	json_out = json.dumps(out,indent=2)
 	return HttpResponse(json_out,content_type='application/json')
@@ -1010,7 +1034,7 @@ def articles_json(request,code=None):
 	all_items = None
 	out = {}
 	out['articles'] = []
-	if code is not None: 
+	if code is not None:
 		con = Conference.objects.get(code=code)
 		all_items = Article.objects.filter(conference=con)
 	else:
@@ -1025,9 +1049,9 @@ def articles_json(request,code=None):
 			'updated_at': datetime.datetime.strftime(i.modified_date,'%Y-%m-%dT%H:%M%z')
 		}
 		if i.modified_date > update_date: update_date = i.modified_date
-		
+
 		out['articles'].append(i_dict)
-	
+
 	out['updated_at'] = datetime.datetime.strftime(update_date,'%Y-%m-%dT%H:%M%z')
 	json_out = json.dumps(out,indent=2)
 	return HttpResponse(json_out,content_type='application/json')
@@ -1036,7 +1060,7 @@ def faqs_json(request,code=None):
 	all_items = None
 	out = {}
 	out['faqs'] = []
-	if code is not None: 
+	if code is not None:
 		con = Conference.objects.get(code=code)
 		all_items = FAQ.objects.filter(conference=con)
 	else:
@@ -1051,9 +1075,9 @@ def faqs_json(request,code=None):
 			'updated_at': datetime.datetime.strftime(i.modified_date,'%Y-%m-%dT%H:%M%z')
 		}
 		if i.modified_date > update_date: update_date = i.modified_date
-		
+
 		out['faqs'].append(i_dict)
-	
+
 	out['updated_at'] = datetime.datetime.strftime(update_date,'%Y-%m-%dT%H:%M%z')
 	json_out = json.dumps(out,indent=2)
 	return HttpResponse(json_out,content_type='application/json')
@@ -1062,7 +1086,7 @@ def notifications_json(request,code=None):
 	all_items = None
 	out = {}
 	out['notifications'] = []
-	if code is not None: 
+	if code is not None:
 		con = Conference.objects.get(code=code)
 		all_items = Notification.objects.filter(conference=con)
 	else:
@@ -1077,9 +1101,9 @@ def notifications_json(request,code=None):
 			'updated_at': datetime.datetime.strftime(i.modified_date,'%Y-%m-%dT%H:%M%z')
 		}
 		if i.modified_date > update_date: update_date = i.modified_date
-		
+
 		out['notifications'].append(i_dict)
-	
+
 	out['updated_at'] = datetime.datetime.strftime(update_date,'%Y-%m-%dT%H:%M%z')
 	json_out = json.dumps(out,indent=2)
 	return HttpResponse(json_out,content_type='application/json')
@@ -1123,39 +1147,39 @@ def conferences_json(request):
 			'updated_at': datetime.datetime.strftime(l.modified_date,'%Y-%m-%dT%H:%M%z'),
 			'link': base_link + i.code + '/locations.json'
 			}
-		if Vendor.objects.filter(conference=i): 
+		if Vendor.objects.filter(conference=i):
 			v = Vendor.objects.filter(conference=i).latest('modified_date')
 			i_dict['vendors'] = {'updated_at': datetime.datetime.strftime(v.modified_date,'%Y-%m-%dT%H:%M%z') }
 		else:
 			i_dict['vendors'] = {'updated_at': '2018-01-01T01:00+0000' }
-			
+
 		i_dict['vendors']['link'] = base_link + i.code + '/vendors.json'
 
-		if FAQ.objects.filter(conference=i): 
+		if FAQ.objects.filter(conference=i):
 			f = FAQ.objects.filter(conference=i).latest('modified_date')
 			i_dict['faqs'] = {'updated_at': datetime.datetime.strftime(f.modified_date,'%Y-%m-%dT%H:%M%z') }
 		else:
-			i_dict['faqs'] = {'updated_at': '2018-01-01T01:00+0000' }	
+			i_dict['faqs'] = {'updated_at': '2018-01-01T01:00+0000' }
 		i_dict['faqs']['link'] = base_link + i.code + '/faqs.json'
-		
-		if Notification.objects.filter(conference=i): 
+
+		if Notification.objects.filter(conference=i):
 			n = Notification.objects.filter(conference=i).latest('modified_date')
 			i_dict['notifications'] = {'updated_at': datetime.datetime.strftime(n.modified_date,'%Y-%m-%dT%H:%M%z') }
 		else:
-			i_dict['notifications'] = {'updated_at': '2018-01-01T01:00+0000' }	
+			i_dict['notifications'] = {'updated_at': '2018-01-01T01:00+0000' }
 		i_dict['notifications']['link'] = base_link + i.code + '/notifications.json'
-		
-		if Article.objects.filter(conference=i): 
+
+		if Article.objects.filter(conference=i):
 			a = Article.objects.filter(conference=i).latest('modified_date')
 			i_dict['articles'] = {'updated_at': datetime.datetime.strftime(a.modified_date,'%Y-%m-%dT%H:%M%z') }
 		else:
-			i_dict['articles'] = {'updated_at': '2018-01-01T01:00+0000' }	
+			i_dict['articles'] = {'updated_at': '2018-01-01T01:00+0000' }
 		i_dict['articles']['link'] = base_link + i.code + '/articles.json'
 
 		if i.modified_date > update_date: update_date = i.modified_date
-		
+
 		out['conferences'].append(i_dict)
-	
+
 	out['updated_at'] = datetime.datetime.strftime(update_date,'%Y-%m-%dT%H:%M%z')
 	json_out = json.dumps(out,indent=2)
 	return HttpResponse(json_out,content_type='application/json')
