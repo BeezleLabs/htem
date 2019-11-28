@@ -5,6 +5,7 @@
 
 from django.shortcuts import render, redirect
 from django.http import HttpResponse, Http404
+from django.core.paginator import Paginator
 
 from django.contrib import messages
 from django.contrib.auth import authenticate
@@ -157,11 +158,14 @@ def events(request,code=None):
 			c = Conference.objects.get(code=grp.name)
 			for e in Event.objects.filter(conference=c):
 				event_list.append(e)
-
+	page_size = 20 if request.GET.get('page_size') is None else request.GET.get('page_size')
+	page = 1 if request.GET.get('page') is None else request.GET.get('page')
+	paginator = Paginator(event_list,page_size)
+	paged_events = paginator.get_page(page)
 	return render(
 		request,
 		'event_manager/events.html',
-		{ 'event_list': event_list }
+		{ 'event_list': paged_events, 'page_size': page_size }
 	)
 
 @login_required
@@ -417,10 +421,15 @@ def speakers(request,code=None):
 			for e in Speaker.objects.filter(conference=c):
 				sp_list.append(e)
 
+	page_size = 20 if request.GET.get('page_size') is None else request.GET.get('page_size')
+	page = 1 if request.GET.get('page') is None else request.GET.get('page')
+	paginator = Paginator(sp_list,page_size)
+	paged_speakers = paginator.get_page(page)	
+
 	return render(
 		request,
 		'event_manager/speakers.html',
-		{ 'speakers': sp_list }
+		{ 'speakers': paged_speakers, 'page_size': page_size }
 	)
 
 @login_required

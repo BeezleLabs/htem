@@ -55,6 +55,23 @@
                     </tbody>
                 </table>
             </div>
+            <div class="pagination">
+                <span class="step-links">
+                {% if event_list.has_previous %}
+                    <a href="?page=1&page_size={{ page_size }}">&laquo; first</a>
+                    <a href="?page={{ event_list.previous_page_number }}&page_size={{ page_size }}">previous</a>
+                {% endif %}
+
+                    <span class="current">
+                        | Page {{ event_list.number }} of {{ event_list.paginator.num_pages }} | 
+                    </span>
+
+                {% if event_list.has_next %}
+                    <a href="?page={{ event_list.next_page_number }}&page_size={{ page_size }}">next</a>
+                    <a href="?page={{ event_list.paginator.num_pages }}&page_size={{ page_size }}">last &raquo;</a>
+                {% endif %}
+                </span>
+            </div>
         </div>
         <!-- /.row -->
 
