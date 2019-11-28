@@ -8,6 +8,10 @@ urlpatterns = [
 	path('',views.index,name='index'),
 	# UI Endpoints
 	path('dashboard/',views.dashboard,name='dashboard'),
+	
+	# Search
+	path('search/',views.search,name='search'),
+	
 	# Events
 	path('events/',views.events,name='events'),
 	path('events/<str:code>/',views.events,name='events'),

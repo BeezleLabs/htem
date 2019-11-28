@@ -14,6 +14,9 @@ from django.contrib.auth.models import Group, User, Permission
 from django.contrib.contenttypes.models import ContentType
 from django.contrib.auth import logout
 from django.contrib.auth.decorators import login_required
+
+from django.db.models import Q
+
 import json
 import re
 import datetime
@@ -49,6 +52,30 @@ def dashboard(request):
 	return render(
 		request,
 		'event_manager/dashboard.html'
+	)
+
+@login_required
+def search(request):
+	q = request.GET.get('q')
+	event_list = None
+	speakers = None
+	if request.session["code"] is not None and q is not None:
+		con = Conference.objects.get(code=request.session["code"])
+		event_list = list(Event.objects.filter( Q(conference=con),
+									   Q(title__icontains=q) | Q(description__icontains=q)
+									   ))
+		speakers = list(Speaker.objects.filter( Q(conference=con),
+											   Q(who__icontains=q) | Q(bio__icontains=q)
+											   ))
+
+	return render(
+		request,
+		'event_manager/search.html',
+		{
+			'q': q,
+			'event_list': event_list,
+			'speakers': speakers
+		}
 	)
 
 @login_required
