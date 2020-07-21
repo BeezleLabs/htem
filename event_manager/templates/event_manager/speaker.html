@@ -51,7 +51,7 @@
                         <select class="form-control" name="code" id="conName">
                             <option {% if not sp.conference %} selected {% endif %}>Select Conference</option>
                             {% for c in cons %}
-                            <option value="{{c.code}}" {% if c == sp.conference %} selected{% endif %}>{{c.name}}</option>
+                            <option value="{{c.code}}" {% if c == sp.conference or c == con %} selected{% endif %}>{{c.name}}</option>
                             {% endfor %}
                         </select>
                     </div>

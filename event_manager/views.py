@@ -220,10 +220,11 @@ def event(request,e_id=None):
 		loc_list = list(Location.objects.filter(conference=conference))
 	else:
 		e = None
-		if request.user.is_superuser:
-			et_list = EventType.objects.all()
-			sp_list = Speaker.objects.all()
-			loc_list = Location.objects.all()
+		if request.user.is_superuser and request.session["code"] is not None:
+			conference = Conference.objects.get(code=request.session["code"])
+			et_list = list(EventType.objects.filter(conference=conference))
+			sp_list = list(Speaker.objects.filter(conference=conference))
+			loc_list = list(Location.objects.filter(conference=conference))
 		else:
 			conference = get_user_conference(request)
 			et_list = list(EventType.objects.filter(conference=conference))
@@ -266,7 +267,7 @@ def event(request,e_id=None):
 				e.speakers.add(sp)
 
 		e.event_id = request.POST.get('event_id',False)
-		if e.event_id is '':
+		if e.event_id == '':
 			e.event_id = e.conference.code + '-' + str(e.id)
 		e.save()
 
@@ -280,7 +281,8 @@ def event(request,e_id=None):
 			'et_list': et_list,
 			'sp_list': sp_list,
 			'loc_list': loc_list,
-			'cons': cons
+			'cons': cons,
+			'con': conference
 		}
 	)
 
@@ -333,6 +335,7 @@ def event_type(request,et_id=None):
 		et_type = None
 
 	cons = []
+	con = None
 	if request.user.is_superuser:
 		cons = Conference.objects.all()
 
@@ -451,7 +454,7 @@ def speakers(request,code=None):
 	page_size = 20 if request.GET.get('page_size') is None else request.GET.get('page_size')
 	page = 1 if request.GET.get('page') is None else request.GET.get('page')
 	paginator = Paginator(sp_list,page_size)
-	paged_speakers = paginator.get_page(page)	
+	paged_speakers = paginator.get_page(page)
 
 	return render(
 		request,
@@ -481,6 +484,7 @@ def speaker(request,sp_id=None):
 		conference = sp.conference
 	else:
 		sp = None
+		conference = Conference.objects.get(code=request.session["code"])
 
 	cons = []
 	if request.user.is_superuser:
@@ -509,7 +513,7 @@ def speaker(request,sp_id=None):
 	return render(
 		request,
 		'event_manager/speaker.html',
-		{ 'sp': sp, 'cons': cons }
+		{ 'sp': sp, 'cons': cons, 'con': conference }
 	)
 
 # Vendors
@@ -913,11 +917,11 @@ def login(request):
         messages.info(request, "Login Failed")
         return render(request, 'event_manager/login.html', {})
     else:
-    	return render(request, 'event_manager/login.html', {})
+        return render(request, 'event_manager/login.html', {})
 
 def logout_view(request):
-    logout(request)
-    return redirect('login')
+	logout(request)
+	return redirect('login')
 
 # RESTful API
 
