@@ -19,6 +19,8 @@ class EventType(models.Model):
 	event_type = models.CharField(max_length=256)
 	color = models.CharField(max_length=16, null=True)
 	conference = models.ForeignKey(Conference,on_delete=models.CASCADE, null=True)
+	description = models.TextField(blank=True)
+	tags = models.CharField(max_length=256, null=True)
 	created_date = models.DateTimeField(auto_now_add=True)
 	modified_date = models.DateTimeField(auto_now=True)
 	def __str__(self):

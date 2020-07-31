@@ -346,6 +346,8 @@ def event_type(request,et_id=None):
 		else:
 			messages.info(request, "Event Type Updated")
 		et_type.event_type = request.POST.get('event_type',False)
+                et_type.description = request.POST.get('description',False)
+                et_type.tags = request.POST.get('tags',False)
 		et_type.color = request.POST.get('color',False)
 		if request.user.is_superuser:
 			con = Conference.objects.get(code=request.POST.get('code',False))
@@ -1005,6 +1007,8 @@ def event_types_json(request,code=None):
 			'id': i.id,
 			'name': i.event_type,
 			'color': i.color,
+			'description': i.description,
+			'tags': i.tags,
 			'conference': i.conference.code,
 			'updated_at': datetime.datetime.strftime(i.modified_date,'%Y-%m-%dT%H:%M%z')
 		}

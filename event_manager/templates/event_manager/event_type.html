@@ -33,6 +33,14 @@
                         <label for="etColor">Color</label>
                         <input type="text" class="form-control" name="color" id="etColor" value="{{type.color}}" placeholder="#ababab">
                     </div>
+                    <div class="form-group">
+                        <label for="etDescription">Description</label>
+                        <textarea rows="10" class="form-control" name="description" id="etDescription" placeholder="Description">{{type.description}}</textarea>
+                    </div>
+                    <div class="form-group">
+                        <label for="etTags">Tags</label>
+                        <input type="text" class="form-control" name="tags" id="etTags" value="{{type.tags}}" placeholder="is_village">
+                    </div>
                     {% if user.is_superuser %}
                     <div class="form-group">
                         <label for="conName">Conference</label>
