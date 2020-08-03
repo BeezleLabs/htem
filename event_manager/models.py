@@ -21,6 +21,10 @@ class EventType(models.Model):
 	conference = models.ForeignKey(Conference,on_delete=models.CASCADE, null=True)
 	description = models.TextField(blank=True)
 	tags = models.CharField(max_length=256, null=True)
+	subforum_url = models.CharField(max_length=256, null=False, default="")
+	discord_url = models.CharField(max_length=256, null=False, default="")
+	youtube_url = models.CharField(max_length=256, null=False, default="")
+	eventdescriptionfooter = models.TextField(blank=True)
 	created_date = models.DateTimeField(auto_now_add=True)
 	modified_date = models.DateTimeField(auto_now=True)
 	def __str__(self):
