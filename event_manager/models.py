@@ -61,6 +61,7 @@ class Location(models.Model):
 	location = models.CharField(max_length=1024)
 	conference = models.ForeignKey(Conference,on_delete=models.CASCADE, null=True)
 	hotel = models.CharField(max_length=1024,blank=True)
+	eventdescriptionfooter = models.TextField(blank=True)
 	created_date = models.DateTimeField(auto_now_add=True)
 	modified_date = models.DateTimeField(auto_now=True)
 	def __str__(self):

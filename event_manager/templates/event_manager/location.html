@@ -33,6 +33,10 @@
                         <label for="hotel">Hotel</label>
                         <input type="text" class="form-control" name="hotel" id="hotel" value="{{loc.hotel}}" placeholder="Hotel">
                     </div>
+                    <div class="form-group">
+                        <label for="etEDF">EventDescriptionFooter</label>
+                        <textarea rows="10" class="form-control" name="eventdescriptionfooter" id="etEDF" placeholder="">{{loc.eventdescriptionfooter}}</textarea>
+                    </div>
                     {% if user.is_superuser %}
                     <div class="form-group">
                         <label for="conName">Conference</label>

@@ -425,6 +425,7 @@ def location(request,loc_id=None):
 			messages.info(request, "Location Updated")
 		loc.location = request.POST.get('location',False)
 		loc.hotel = request.POST.get('hotel',False)
+		loc.eventdescriptionfooter = request.POST.get('eventdescriptionfooter',False)
 		if request.user.is_superuser:
 			con = Conference.objects.get(code=request.POST.get('code',False))
 			loc.conference = con
