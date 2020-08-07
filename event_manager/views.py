@@ -244,6 +244,7 @@ def event(request,e_id=None):
 		e.title = request.POST.get('title',False)
 		e.description = request.POST.get('description',False)
 		e.includes = request.POST.get('includes',False)
+		e.tags = request.POST.get('tags',False)
 		e.link = request.POST.get('link',False)
 		e.start_date = request.POST.get('start_date',False)
 		e.end_date = request.POST.get('end_date',False)
@@ -954,6 +955,7 @@ def events_json(request,code=None):
 			e_dict['location'] = None
 		e_dict['link'] = e.link
 		e_dict['includes'] = e.includes
+		e_dict['tags'] = e.tags
 		e_dict['conference'] = e.conference.code
 		for s in e.speakers.all():
 			e_dict['speakers'].append(s.id)

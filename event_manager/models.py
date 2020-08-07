@@ -14,7 +14,7 @@ class Conference(models.Model):
 	modified_date = models.DateTimeField(auto_now=True)
 	def __str__(self):
 		return self.name
-	
+
 class EventType(models.Model):
 	event_type = models.CharField(max_length=256)
 	color = models.CharField(max_length=16, null=True)
@@ -29,7 +29,7 @@ class EventType(models.Model):
 	modified_date = models.DateTimeField(auto_now=True)
 	def __str__(self):
 		return self.event_type + ' (' + self.conference.name + ')'
-	
+
 class FAQ(models.Model):
 	question = models.TextField(blank=True)
 	answer = models.TextField(blank=True)
@@ -38,7 +38,7 @@ class FAQ(models.Model):
 	modified_date = models.DateTimeField(auto_now=True)
 	def __str__(self):
 		return self.question + ' (' + self.conference.name + ')'
-	
+
 class Article(models.Model):
 	name = models.TextField(blank=True)
 	text = models.TextField(blank=True)
@@ -47,7 +47,7 @@ class Article(models.Model):
 	modified_date = models.DateTimeField(auto_now=True)
 	def __str__(self):
 		return self.title + ' (' + self.conference.name + ')'
-	
+
 class Notification(models.Model):
 	time = models.DateTimeField(default='2018-01-01T01:00:00-00:00')
 	text = models.TextField(blank=True)
@@ -113,6 +113,7 @@ class Event(models.Model):
 	tool = models.BooleanField(default=False)
 	demo = models.BooleanField(default=False)
 	includes = models.CharField(max_length=256,blank=True)
+	tags = models.TextField(blank=True)
 	dctv_channel = models.CharField(max_length=32,blank=True)
 	start_date = models.DateTimeField(default='2018-01-01T00:00:00-00:00')
 	end_date = models.DateTimeField(default='2018-01-01T01:00:00-00:00')
@@ -120,4 +121,3 @@ class Event(models.Model):
 	modified_date = models.DateTimeField(auto_now=True)
 	def __str__(self):
 		return self.title + ' (' + self.conference.name + ')'
-	
